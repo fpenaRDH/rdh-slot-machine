@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RDH SLOT MACHINE – Match the Defect!</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1f2a38, #0f1720);
+    color: white;
+    text-align: center;
+  }
+
+  h1 {
+    margin-top: 20px;
+    font-size: 28px;
+  }
+
+  .machine {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 15px;
+  }
+
+  .reel {
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .reel img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+  }
+
+  .spin-button {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    background-color: #00b894;
+    color: white;
+  }
+
+  .message {
+    margin-top: 25px;
+    font-size: 20px;
+    min-height: 50px;
+  }
+
+  .tip {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #a8ffec;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎰 RDH SLOT MACHINE</h1>
+
+<div class="machine">
+  <div class="reel" id="reel1"></div>
+  <div class="reel" id="reel2"></div>
+  <div class="reel" id="reel3"></div>
+</div>
+
+<button class="spin-button" onclick="spin()">SPIN</button>
+
+<div class="message" id="message"></div>
+<div class="tip" id="tip"></div>
+
+<script>
+const symbols = [
+  { name: "water", weight: 5 },
+  { name: "cracks", weight: 5 },
+  { name: "roof", weight: 5 },
+  { name: "air", weight: 5 },
+  { name: "structural", weight: 5 },
+  { name: "healthy", weight: 1 }
+];
+
+const tips = [
+  "Check transitions first when diagnosing air leakage.",
+  "Drainage plane continuity prevents water intrusion.",
+  "Flashing failures are common roof issues.",
+  "Façade cracks may indicate movement.",
+  "Structural red flags deserve immediate review."
+];
+
+function weightedRandom() {
+  let pool = [];
+  symbols.forEach(s => {
+    for (let i = 0; i < s.weight; i++) {
+      pool.push(s.name);
+    }
+  });
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function spin() {
+  let r1 = weightedRandom();
+  let r2 = weightedRandom();
+  let r3 = weightedRandom();
+
+  setReel("reel1", r1);
+  setReel("reel2", r2);
+  setReel("reel3", r3);
+
+  evaluate(r1, r2, r3);
+}
+
+function setReel(id, symbol) {
+  document.getElementById(id).innerHTML =
+    `<img src="assets/${symbol}.png">`;
+}
+
+function evaluate(r1, r2, r3) {
+  const message = document.getElementById("message");
+  const tip = document.getElementById("tip");
+
+  if (r1 === r2 && r2 === r3) {
+    if (r1 === "healthy") {
+      message.innerText = "💎 HEALTHY BUILDING JACKPOT!";
+      tip.innerText = "";
+      return;
+    } else {
+      message.innerText = "🏆 Triple Defect! Grand Prize Entry!";
+      tip.innerText =
+        tips[Math.floor(Math.random() * tips.length)];
+      return;
+    }
+  }
+
+  if (r1 === r2 || r2 === r3 || r1 === r3) {
+    message.innerText = "🎉 Match 2! Claim your RDH swag!";
+    tip.innerText = "";
+    return;
+  }
+
+  message.innerText = "No match — try again!";
+  tip.innerText = "";
+}
+</script>
+
+</body>
+</html>
