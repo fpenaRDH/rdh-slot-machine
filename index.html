@@ -102,8 +102,7 @@ function evaluate([r1,r2,r3]) {
   if (r1===r2 && r2===r3) {
     jackpotSound.currentTime=0; jackpotSound.play();
     message.innerText = r1==="healthy"
-      ? "💎 HEALTHY BUILDING JACKPOT!"
-      : "🏆 Triple Defect! Grand Prize Entry!";
+      ? "💎 JACKPOT!"
     return;
   }
 
