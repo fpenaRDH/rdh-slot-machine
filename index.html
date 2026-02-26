@@ -114,7 +114,6 @@ function weightedRandom() {
 }
 
 function setReel(id, finalSymbol) {
-
   const reel = document.getElementById(id);
 
   // Build a stack of random images for spin effect
@@ -136,22 +135,23 @@ function stopReel(track) {
   const images = track.querySelectorAll("img");
   const lastImage = images[images.length - 1];
 
-  const imageHeight = lastImage.offsetHeight;
-  const totalHeight = track.offsetHeight;
+  const imageHeight = lastImage.getBoundingClientRect().height;
+  const reelHeight = track.parentElement.getBoundingClientRect().height;
 
-  const moveAmount = totalHeight - imageHeight;
+  // Center the last image vertically in the reel
+  const moveAmount = track.offsetHeight - (reelHeight / 2 + imageHeight / 2);
 
   track.style.transform = `translateY(-${moveAmount}px)`;
 }
-  
-function spin() {
 
+function spin() {
   button.disabled = true;
   document.getElementById("message").innerText = "";
 
   spinSound.currentTime = 0;
   spinSound.play();
 
+  // Determine random final symbols
   let r1 = weightedRandom();
   let r2 = weightedRandom();
   let r3 = weightedRandom();
@@ -159,24 +159,17 @@ function spin() {
   const track1 = setReel("reel1", r1);
   const track2 = setReel("reel2", r2);
   const track3 = setReel("reel3", r3);
-  
+
+  // Stop reels one by one with delay
+  setTimeout(() => stopReel(track1), 500);  // first reel
+  setTimeout(() => stopReel(track2), 1200); // second reel
+  setTimeout(() => stopReel(track3), 1900); // third reel
+
+  // Evaluate after all reels stopped
   setTimeout(() => {
-  stopReel(track1);
-}, 50);
-
-setTimeout(() => {
-  stopReel(track2);
-}, 200);
-
-setTimeout(() => {
-  stopReel(track3);
-}, 350);
-
-  setTimeout(() => {
-  evaluate(r1, r2, r3);
-  button.disabled = false;
-}, 1500);
- 
+    evaluate(r1, r2, r3);
+    button.disabled = false;
+  }, 2500);
 }
 
 function evaluate(r1, r2, r3) {
