@@ -136,10 +136,14 @@ function stopReel(track) {
   const images = track.querySelectorAll("img");
   const lastImage = images[images.length - 1];
 
-  const imageHeight = lastImage.offsetHeight;
-  const totalHeight = track.offsetHeight;
+  // Get actual rendered height of an image
+  const imageHeight = lastImage.getBoundingClientRect().height;
 
-  const moveAmount = totalHeight - imageHeight;
+  // The number of images above the last one
+  const imagesAbove = images.length - 1;
+
+  // Move the track up by (imagesAbove * imageHeight)
+  const moveAmount = imagesAbove * imageHeight;
 
   track.style.transform = `translateY(-${moveAmount}px)`;
 }
