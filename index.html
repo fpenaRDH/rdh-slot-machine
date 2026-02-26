@@ -146,22 +146,28 @@ function spin() {
 
 function evaluate([r1, r2, r3]) {
   const message = document.getElementById("message");
-  const uniqueSymbols = new Set([r1, r2, r3]);
 
-  if (uniqueSymbols.size === 1) {
-    // All three match → Jackpot
-    jackpotSound.currentTime = 0; 
+  // Case 1: Jackpot - all three match
+  if (r1 === r2 && r2 === r3) {
+    jackpotSound.currentTime = 0;
     jackpotSound.play();
     message.innerText = "💎 JACKPOT! All three match!";
-  } else if (uniqueSymbols.size === 2) {
-    // Exactly two match → Match 2
-    winSound.currentTime = 0; 
+    return;
+  }
+
+  // Case 2: Exactly two match - check every pair
+  if ((r1 === r2 && r1 !== r3) ||  // Reel 1 & 2 match
+      (r1 === r3 && r1 !== r2) ||  // Reel 1 & 3 match
+      (r2 === r3 && r2 !== r1)) {  // Reel 2 & 3 match
+    winSound.currentTime = 0;
     winSound.play();
     message.innerText = "🎉 Match 2! You win!";
-  } else {
-    // All different → No match
-    message.innerText = "❌ No match — try again!";
+    return;
   }
+
+  // Case 3: No match - all different
+  message.innerText = "❌ No match — try again!";
+}
 }
 </script>
 
