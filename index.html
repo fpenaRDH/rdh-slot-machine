@@ -2,154 +2,190 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>RDH SLOT MACHINE – Match the Defect!</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RDH Slot Machine</title>
-
 <style>
-body {
+  body {
+    margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background: linear-gradient(135deg, #1f2a38, #0f1720);
+    color: white;
     text-align: center;
-}
+  }
 
-h1 {
+  h1 {
     margin-top: 20px;
-}
+    font-size: 28px;
+  }
 
-/* Reel container */
-.reel {
-    display: inline-block;
+  .machine {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 15px;
+  }
+
+  .reel {
     width: 120px;
     height: 120px;
-    margin: 10px;
-    border: 3px solid black;
-    border-radius: 10px;
-    overflow: hidden;
     background: white;
-}
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-/* Reel images */
-.reel img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+  .reel img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+  }
 
-/* Spinning animation */
-.spinning {
-    animation: spinAnim 0.15s linear infinite;
+  .spin-button {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    background-color: #00b894;
+    color: white;
+  }
+
+  .message {
+    margin-top: 25px;
+    font-size: 20px;
+    min-height: 50px;
+  }
+
+    .spinning {
+  animation: spinAnim 0.15s linear infinite;
 }
 
 @keyframes spinAnim {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-20px); }
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-15px); }
 }
 
-#spinButton {
-    padding: 12px 25px;
-    font-size: 18px;
-    margin-top: 20px;
-    cursor: pointer;
+.spin-button:disabled {
+  opacity: 0.6;
 }
 </style>
 </head>
-
 <body>
 
-<h1>RDH Slot Machine</h1>
+<h1>🎰 RDH SLOT MACHINE</h1>
 
-<div class="reel" id="reel1"><img src="images/water.png"></div>
-<div class="reel" id="reel2"><img src="images/cracks.png"></div>
-<div class="reel" id="reel3"><img src="images/roof.png"></div>
+<div class="machine">
+  <div class="reel" id="reel1"></div>
+  <div class="reel" id="reel2"></div>
+  <div class="reel" id="reel3"></div>
+</div>
 
-<br>
-<button id="spinButton">SPIN</button>
-
-<audio id="spinSound" src="sounds/spin.mp3"></audio>
-<audio id="winSound" src="sounds/win.mp3"></audio>
-<audio id="jackpotSound" src="sounds/jackpot.mp3"></audio>
+<button class="spin-button" onclick="spin()">SPIN</button>
+<audio id="spinSound" src="spin.mp3"></audio>
+<audio id="winSound" src="win.mp3"></audio>
+<audio id="jackpotSound" src="jackpot.mp3"></audio>
+    
+<div class="message" id="message"></div>
 
 <script>
-const spinButton = document.getElementById("spinButton");
-
-const reel1 = document.querySelector("#reel1 img");
-const reel2 = document.querySelector("#reel2 img");
-const reel3 = document.querySelector("#reel3 img");
+const symbols = [
+  { name: "water", weight: 5 },
+  { name: "cracks", weight: 5 },
+  { name: "roof", weight: 5 },
+  { name: "air", weight: 5 },
+  { name: "structural", weight: 5 },
+  { name: "healthy", weight: 1 }
+];
 
 const spinSound = document.getElementById("spinSound");
 const winSound = document.getElementById("winSound");
 const jackpotSound = document.getElementById("jackpotSound");
+const button = document.querySelector(".spin-button");
 
-const images = [
-    "images/water.png",
-    "images/cracks.png",
-    "images/roof.png"
-];
+function weightedRandom() {
+  let pool = [];
+  symbols.forEach(s => {
+    for (let i = 0; i < s.weight; i++) {
+      pool.push(s.name);
+    }
+  });
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
-spinButton.addEventListener("click", spin);
-
-function randomImage() {
-    return images[Math.floor(Math.random() * images.length)];
+function setReel(id, symbol) {
+  document.getElementById(id).innerHTML =
+    `<img src="${symbol}.png">`;
 }
 
 function spin() {
 
-    spinButton.disabled = true;
+  button.disabled = true;
+  document.getElementById("message").innerText = "";
 
-    // Reset sounds
-    spinSound.currentTime = 0;
-    winSound.pause();
-    jackpotSound.pause();
+  spinSound.currentTime = 0;
+  spinSound.play();
 
-    spinSound.play();
+  const reel1 = document.getElementById("reel1");
+  const reel2 = document.getElementById("reel2");
+  const reel3 = document.getElementById("reel3");
 
-    // Start spinning animation
-    reel1.classList.add("spinning");
-    reel2.classList.add("spinning");
-    reel3.classList.add("spinning");
+  reel1.classList.add("spinning");
+  reel2.classList.add("spinning");
+  reel3.classList.add("spinning");
 
-    let img1, img2, img3;
+  let r1, r2, r3;
 
-    // Reel 1 stops at 1s
-    setTimeout(() => {
-        reel1.classList.remove("spinning");
-        img1 = randomImage();
-        reel1.src = img1;
-    }, 1000);
+  // Reel 1 stops
+  setTimeout(() => {
+    reel1.classList.remove("spinning");
+    r1 = weightedRandom();
+    setReel("reel1", r1);
+  }, 1000);
 
-    // Reel 2 stops at 2s
-    setTimeout(() => {
-        reel2.classList.remove("spinning");
-        img2 = randomImage();
-        reel2.src = img2;
-    }, 2000);
+  // Reel 2 stops
+  setTimeout(() => {
+    reel2.classList.remove("spinning");
+    r2 = weightedRandom();
+    setReel("reel2", r2);
+  }, 2000);
 
-    // Reel 3 stops at 3s
-    setTimeout(() => {
-        reel3.classList.remove("spinning");
-        img3 = randomImage();
-        reel3.src = img3;
+  // Reel 3 stops
+  setTimeout(() => {
+    reel3.classList.remove("spinning");
+    r3 = weightedRandom();
+    setReel("reel3", r3);
 
-        spinButton.disabled = false;
+    evaluate(r1, r2, r3);
+    button.disabled = false;
 
-        checkWin(img1, img2, img3);
-
-    }, 3000);
+  }, 3000);
 }
 
-function checkWin(a, b, c) {
+function evaluate(r1, r2, r3) {
+  const message = document.getElementById("message");
 
-    // 3 matches = JACKPOT
-    if (a === b && b === c) {
-        jackpotSound.currentTime = 0;
-        jackpotSound.play();
-    }
+  if (r1 === r2 && r2 === r3) {
 
-    // 2 matches = WIN
-    else if (a === b || a === c || b === c) {
-        winSound.currentTime = 0;
-        winSound.play();
+    jackpotSound.currentTime = 0;
+    jackpotSound.play();
+
+    if (r1 === "healthy") {
+      message.innerText = "💎 HEALTHY BUILDING JACKPOT!";
+    } else {
+      message.innerText = "🏆 Triple Defect! Grand Prize Entry!";
     }
+    return;
+  }
+
+  if (r1 === r2 || r2 === r3 || r1 === r3) {
+    winSound.currentTime = 0;
+    winSound.play();
+    message.innerText = "🎉 Match 2! Claim your RDH swag!";
+    return;
+  }
+
+  message.innerText = "No match — try again!";
 }
 </script>
 
