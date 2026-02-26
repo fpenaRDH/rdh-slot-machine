@@ -108,7 +108,7 @@ function spin() {
 function evaluate([r1, r2, r3]) {
   const message = document.getElementById("message");
 
-  // Case 1: Jackpot - all three match
+  // 1️⃣ Jackpot - all three match
   if (r1 === r2 && r2 === r3) {
     jackpotSound.currentTime = 0;
     jackpotSound.play();
@@ -116,17 +116,17 @@ function evaluate([r1, r2, r3]) {
     return;
   }
 
-  // Case 2: Any two match (dummy-proof)
-  if ((r1 === r2 && r1 !== r3) ||  // 1 & 2
-      (r1 === r3 && r1 !== r2) ||  // 1 & 3
-      (r2 === r3 && r2 !== r1)) {  // 2 & 3
+  // 2️⃣ Any two match - all possible pairs
+  if ((r1 === r2 && r1 !== r3) ||  // Reel 1 & 2
+      (r1 === r3 && r1 !== r2) ||  // Reel 1 & 3
+      (r2 === r3 && r2 !== r1)) {  // Reel 2 & 3
     winSound.currentTime = 0;
     winSound.play();
     message.innerText = "🎉 Match 2! You win!";
     return;
   }
 
-  // Case 3: No match (all different)
+  // 3️⃣ No match - all different
   message.innerText = "❌ No match — try again!";
 }
 </script>
