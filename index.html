@@ -12,55 +12,25 @@ body {
   color: white;
   text-align: center;
 }
-h1 {
-  margin-top: 20px;
-  font-size: 28px;
-}
-.machine {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-  gap: 15px;
-}
+h1 { margin-top: 20px; font-size: 28px; }
+.machine { display: flex; justify-content: center; margin-top: 30px; gap: 15px; }
 .reel {
-  width: 22vw;
-  height: 22vw;
-  max-width: 160px;
-  max-height: 160px;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
+  width: 22vw; height: 22vw; max-width: 160px; max-height: 160px;
+  background: white; border-radius: 12px; overflow: hidden; position: relative;
 }
 .reel-track {
-  position: absolute;
-  width: 100%;
+  position: absolute; width: 100%;
   transition: transform 1s cubic-bezier(.17,.67,.83,.67);
 }
 .reel-track img {
-  width: 70%;
-  height: 70%;
-  display: block;
-  margin: 15% auto;
-  object-fit: contain;
+  width: 70%; height: 70%; display: block; margin: 15% auto; object-fit: contain;
 }
 .spin-button {
-  margin-top: 30px;
-  padding: 15px 30px;
-  font-size: 20px;
-  border-radius: 10px;
-  border: none;
-  background-color: #00b894;
-  color: white;
+  margin-top: 30px; padding: 15px 30px; font-size: 20px; border-radius: 10px;
+  border: none; background-color: #00b894; color: white;
 }
-.message {
-  margin-top: 25px;
-  font-size: 20px;
-  min-height: 50px;
-}
-.spin-button:disabled {
-  opacity: 0.6;
-}
+.message { margin-top: 25px; font-size: 20px; min-height: 50px; }
+.spin-button:disabled { opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -97,17 +67,14 @@ const button = document.querySelector(".spin-button");
 
 function weightedRandom() {
   let pool = [];
-  symbols.forEach(s => {
-    for (let i = 0; i < s.weight; i++) pool.push(s.name);
-  });
+  symbols.forEach(s => { for(let i=0;i<s.weight;i++) pool.push(s.name); });
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// Set up reel stack and return the track element
 function setReel(id, finalSymbol) {
   const reel = document.getElementById(id);
   let stack = '';
-  for (let i = 0; i < 10; i++) stack += `<img src="${weightedRandom()}.png">`;
+  for(let i=0;i<10;i++) stack += `<img src="${weightedRandom()}.png">`;
   stack += `<img src="${finalSymbol}.png">`;
   reel.innerHTML = `<div class="reel-track">${stack}</div>`;
   const track = reel.querySelector('.reel-track');
@@ -115,61 +82,52 @@ function setReel(id, finalSymbol) {
   return track;
 }
 
-// Stop a reel and center the last image
 function stopReel(track) {
   const images = track.querySelectorAll('img');
-  const lastImage = images[images.length - 1];
+  const lastImage = images[images.length-1];
   const reelHeight = track.parentElement.offsetHeight;
   const imageHeight = lastImage.offsetHeight;
-  const imagesAbove = images.length - 1;
-  const moveAmount = imagesAbove * imageHeight - (reelHeight - imageHeight) / 2;
+  const imagesAbove = images.length-1;
+  const moveAmount = imagesAbove * imageHeight - (reelHeight - imageHeight)/2;
   track.style.transform = `translateY(-${moveAmount}px)`;
 }
 
-// Main spin function
 function spin() {
   button.disabled = true;
   document.getElementById("message").innerText = "";
-  spinSound.currentTime = 0;
-  spinSound.play();
+  spinSound.currentTime = 0; spinSound.play();
 
-  // Determine final symbols and store in array
   const finalSymbols = [weightedRandom(), weightedRandom(), weightedRandom()];
 
-  // Create reels with the final symbols
   const track1 = setReel("reel1", finalSymbols[0]);
   const track2 = setReel("reel2", finalSymbols[1]);
   const track3 = setReel("reel3", finalSymbols[2]);
 
-  // Stop reels one by one
-  setTimeout(() => stopReel(track1), 200);
-  setTimeout(() => stopReel(track2), 800);
-  setTimeout(() => stopReel(track3), 1400);
+  setTimeout(()=>stopReel(track1), 200);
+  setTimeout(()=>stopReel(track2), 800);
+  setTimeout(()=>stopReel(track3), 1400);
 
-  // Evaluate after all reels stopped
-  setTimeout(() => {
+  setTimeout(()=> {
     evaluate(finalSymbols);
     button.disabled = false;
   }, 2000);
 }
 
-// Evaluate the spin results
-function evaluate(symbolsArr) {
-  const [r1, r2, r3] = symbolsArr;
+function evaluate([r1, r2, r3]) {
   const message = document.getElementById("message");
 
+  // Check for jackpot (all three match)
   if (r1 === r2 && r2 === r3) {
-    jackpotSound.currentTime = 0;
-    jackpotSound.play();
-    message.innerText = r1 === "healthy"
-      ? "💎 HEALTHY BUILDING JACKPOT!"
+    jackpotSound.currentTime = 0; jackpotSound.play();
+    message.innerText = r1 === "healthy" 
+      ? "💎 HEALTHY BUILDING JACKPOT!" 
       : "🏆 Triple Defect! Grand Prize Entry!";
     return;
   }
 
-  if (r1 === r2 || r2 === r3 || r1 === r3) {
-    winSound.currentTime = 0;
-    winSound.play();
+  // Check for exactly 2 matching
+  if (r1 === r2 || r1 === r3 || r2 === r3) {
+    winSound.currentTime = 0; winSound.play();
     message.innerText = "🎉 Match 2! Claim your RDH swag!";
     return;
   }
