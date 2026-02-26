@@ -155,8 +155,10 @@ function evaluate([r1, r2, r3]) {
     return;
   }
 
-  // Two-match: exactly two symbols match
-  if (r1 === r2 || r1 === r3 || r2 === r3) {
+  // Two-match: exactly two symbols match (any two reels, including reel 3)
+  if ((r1 === r2 && r1 !== r3) ||
+      (r1 === r3 && r1 !== r2) ||
+      (r2 === r3 && r2 !== r1)) {
     winSound.currentTime = 0; 
     winSound.play();
     message.innerText = "🎉 Match 2! You win!";
