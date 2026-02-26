@@ -1,135 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>RDH SLOT MACHINE – Match the Defect!</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { 
-  margin:0; 
-  font-family:Arial,sans-serif; 
-  background:linear-gradient(135deg,#1f2a38,#0f1720); 
-  color:white; 
-  text-align:center; 
-}
-h1 { margin-top:20px; font-size:28px; }
-.machine { display:flex; justify-content:center; margin-top:30px; gap:15px; }
-.reel { width:22vw; height:22vw; max-width:160px; max-height:160px; background:white; border-radius:12px; overflow:hidden; position:relative; }
-.reel-track { position:absolute; width:100%; transition:transform 1s cubic-bezier(.17,.67,.83,.67); }
-.reel-track img { width:70%; height:70%; display:block; margin:15% auto; object-fit:contain; }
-.spin-button { margin-top:30px; padding:15px 30px; font-size:20px; border-radius:10px; border:none; background-color:#00b894; color:white; }
-.message { margin-top:25px; font-size:20px; min-height:50px; }
-.spin-button:disabled { opacity:0.6; }
-</style>
+  <meta charset="UTF-8" />
+  <title>RDH SLOT MACHINE – Match the Defect!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1f2a38, #0f1720);
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 28px;
+    }
+
+    .machine {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 15px;
+    }
+
+    /* Reel window */
+    .reel {
+      width: 22vw;
+      height: 22vw;
+      max-width: 160px;
+      max-height: 160px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+    }
+
+    /* Moving strip of images */
+    .reel-track {
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: 0;
+      transform: translateY(0);
+      transition: transform 1s cubic-bezier(.17,.67,.83,.67);
+    }
+
+    /* Classic slot: one image equals one full reel "frame" */
+    .reel-track img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      margin: 0;
+      object-fit: cover; /* change to 'cover' if you want crop-fill */
+      background: white;
+    }
+
+    .spin-button {
+      margin-top: 30px;
+      padding: 15px 30px;
+      font-size: 20px;
+      border-radius: 10px;
+      border: none;
+      background-color: #00b894;
+      color: white;
+      cursor: pointer;
+    }
+
+    .spin-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 25px;
+      font-size: 20px;
+      min-height: 50px;
+    }
+  </style>
 </head>
+
 <body>
+  <h1>🎰 RDH SLOT MACHINE</h1>
 
-<h1>🎰 RDH SLOT MACHINE</h1>
+  <div class="machine">
+    <div class="reel" id="reel1"></div>
+    <div class="reel" id="reel2"></div>
+    <div class="reel" id="reel3"></div>
+  </div>
 
-<div class="machine">
-  <div class="reel" id="reel1"></div>
-  <div class="reel" id="reel2"></div>
-  <div class="reel" id="reel3"></div>
-</div>
+  <button class="spin-button" onclick="spin()">SPIN</button>
 
-<button class="spin-button" onclick="spin()">SPIN</button>
+  <audio id="spinSound" src="spin.mp3" preload="auto"></audio>
+  <audio id="winSound" src="win.mp3" preload="auto"></audio>
+  <audio id="jackpotSound" src="jackpot.mp3" preload="auto"></audio>
 
-<audio id="spinSound" src="spin.mp3"></audio>
-<audio id="winSound" src="win.mp3"></audio>
-<audio id="jackpotSound" src="jackpot.mp3"></audio>
+  <div class="message" id="message"></div>
 
-<div class="message" id="message"></div>
+  <script>
+    // ✅ Weighted symbols
+    const symbols = [
+      { name: "water",      weight: 5 },
+      { name: "cracks",     weight: 5 },
+      { name: "roof",       weight: 5 },
+      { name: "air",        weight: 5 },
+      { name: "structural", weight: 5 },
+      { name: "healthy",    weight: 1 }
+    ];
 
-<script>
-const symbols = [
-  { name: "water", weight: 5 },
-  { name: "cracks", weight: 5 },
-  { name: "roof", weight: 5 },
-  { name: "air", weight: 5 },
-  { name: "structural", weight: 5 },
-  { name: "healthy", weight: 1 }
-];
+    const spinSound = document.getElementById("spinSound");
+    const winSound = document.getElementById("winSound");
+    const jackpotSound = document.getElementById("jackpotSound");
+    const button = document.querySelector(".spin-button");
+    const messageEl = document.getElementById("message");
 
-const spinSound = document.getElementById("spinSound");
-const winSound = document.getElementById("winSound");
-const jackpotSound = document.getElementById("jackpotSound");
-const button = document.querySelector(".spin-button");
+    // Safer audio playback (avoids browser autoplay-related console errors)
+    function safePlay(audioEl) {
+      try {
+        audioEl.currentTime = 0;
+        const p = audioEl.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      } catch (e) {}
+    }
 
-function weightedRandom() {
-  let pool = [];
-  symbols.forEach(s => { 
-    for(let i=0;i<s.weight;i++) pool.push(s.name); 
-  });
-  return pool[Math.floor(Math.random() * pool.length)];
-}
+    function weightedRandom() {
+      const pool = [];
+      for (const s of symbols) {
+        for (let i = 0; i < s.weight; i++) pool.push(s.name);
+      }
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
 
-function setReel(id, finalSymbol) {
-  const reel = document.getElementById(id);
-  let stack = '';
-  for(let i=0;i<10;i++) stack += `<img src="${weightedRandom()}.png">`;
-  stack += `<img src="${finalSymbol}.png">`;
-  reel.innerHTML = `<div class="reel-track">${stack}</div>`;
-  const track = reel.querySelector('.reel-track');
-  track.offsetHeight; // force reflow
-  return track;
-}
+    /**
+     * Build the reel track with N random symbols + finalSymbol at the end.
+     * spins = how many random frames before the final symbol.
+     */
+    function setReel(reelId, finalSymbol, spins = 12) {
+      const reel = document.getElementById(reelId);
 
-function stopReel(track) {
-  const images = track.querySelectorAll('img');
-  const lastImage = images[images.length-1];
-  const reelHeight = track.parentElement.offsetHeight;
-  const imageHeight = lastImage.offsetHeight;
-  const imagesAbove = images.length-1;
-  const moveAmount = imagesAbove * imageHeight - (reelHeight - imageHeight)/2;
-  track.style.transform = `translateY(-${moveAmount}px)`;
-}
+      let stack = "";
+      for (let i = 0; i < spins; i++) {
+        const s = weightedRandom();
+        stack += `<img src="${s}.png" alt="${s}">`;
+      }
+      stack += `<img src="${finalSymbol}.png" alt="${finalSymbol}">`;
 
-function spin() {
-  button.disabled = true;
-  document.getElementById("message").innerText = "";
-  spinSound.currentTime = 0; 
-  spinSound.play();
+      reel.innerHTML = `<div class="reel-track">${stack}</div>`;
+      const track = reel.querySelector(".reel-track");
 
-  const finalSymbols = [weightedRandom(), weightedRandom(), weightedRandom()];
-  const track1 = setReel("reel1", finalSymbols[0]);
-  const track2 = setReel("reel2", finalSymbols[1]);
-  const track3 = setReel("reel3", finalSymbols[2]);
+      // Ensure we start at the top before the animation begins
+      track.style.transition = "none";
+      track.style.transform = "translateY(0)";
 
-  setTimeout(()=>stopReel(track1), 200);
-  setTimeout(()=>stopReel(track2), 800);
-  setTimeout(()=>stopReel(track3), 1400);
+      // Force layout, then restore transition so the next transform animates
+      track.offsetHeight; // reflow
+      track.style.transition = "transform 1s cubic-bezier(.17,.67,.83,.67)";
 
-  setTimeout(()=>{
-    evaluate(finalSymbols);
-    button.disabled = false;
-  },2000);
-}
+      return track;
+    }
 
-function evaluate([r1, r2, r3]) {
-  const message = document.getElementById("message");
+    /**
+     * Classic stop: each frame is exactly reelHeight.
+     * We move the track so the LAST image (finalSymbol) is fully visible in the window.
+     */
+    function stopReel(track) {
+      const images = track.querySelectorAll("img");
+      const reelHeight = track.parentElement.offsetHeight; // the window height
+      const framesAboveFinal = images.length - 1;          // last image is final
+      const moveAmount = framesAboveFinal * reelHeight;
 
-  // 1️⃣ Jackpot - all three match
-  if (r1 === r2 && r2 === r3) {
-    jackpotSound.currentTime = 0;
-    jackpotSound.play();
-    message.innerText = "💎 JACKPOT! All three match!";
-    return;
-  }
+      track.style.transform = `translateY(-${moveAmount}px)`;
+    }
 
-  // 2️⃣ Any two match - all possible pairs
-  if ((r1 === r2 && r1 !== r3) ||  // Reel 1 & 2
-      (r1 === r3 && r1 !== r2) ||  // Reel 1 & 3
-      (r2 === r3 && r2 !== r1))||  // Reel 2 & 3{
-    winSound.currentTime = 0;
-    winSound.play();
-    message.innerText = "🎉 Match 2! You win!";
-    return;
-  }
+    function evaluate([r1, r2, r3]) {
+      // 1️⃣ Jackpot - all three match
+      if (r1 === r2 && r2 === r3) {
+        safePlay(jackpotSound);
+        messageEl.innerText = "💎 JACKPOT! All three match!";
+        return;
+      }
 
-  // 3️⃣ No match - all different
-  message.innerText = "❌ No match — try again!";
-}
-</script>
+      // 2️⃣ Any two match
+      if (
+        (r1 === r2 && r1 !== r3) ||
+        (r1 === r3 && r1 !== r2) ||
+        (r2 === r3 && r2 !== r1)
+      ) {
+        safePlay(winSound);
+        messageEl.innerText = "🎉 Match 2! You win!";
+        return;
+      }
 
+      // 3️⃣ No match
+      messageEl.innerText = "❌ No match — try again!";
+    }
+
+    function spin() {
+      button.disabled = true;
+      messageEl.innerText = "";
+
+      safePlay(spinSound);
+
+      // Choose final results (weighted)
+      const finalSymbols = [weightedRandom(), weightedRandom(), weightedRandom()];
+
+      // More realistic: later reels spin longer
+      const track1 = setReel("reel1", finalSymbols[0], 12);
+      const track2 = setReel("reel2", finalSymbols[1], 16);
+      const track3 = setReel("reel3", finalSymbols[2], 20);
+
+      // Stagger stopping times
+      setTimeout(() => stopReel(track1), 150);
+      setTimeout(() => stopReel(track2), 650);
+      setTimeout(() => stopReel(track3), 1150);
+
+      // Evaluate after reels stop (match this with transition duration & delays)
+      setTimeout(() => {
+        evaluate(finalSymbols);
+        button.disabled = false;
+      }, 1750);
+    }
+
+    // Fill reels initially so they are not blank on load
+    (function init() {
+      const s1 = weightedRandom();
+      const s2 = weightedRandom();
+      const s3 = weightedRandom();
+
+      // Just show one symbol in each reel initially
+      document.getElementById("reel1").innerHTML = `<div class="reel-track"><img src="${s1}.png" alt="${s1}"></div>`;
+      document.getElementById("reel2").innerHTML = `<div class="reel-track"><img src="${s2}.png" alt="${s2}"></div>`;
+      document.getElementById("reel3").innerHTML = `<div class="reel-track"><img src="${s3}.png" alt="${s3}"></div>`;
+    })();
+  </script>
 </body>
 </html>
