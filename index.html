@@ -135,11 +135,13 @@ function stopReel(track) {
   const images = track.querySelectorAll("img");
   const lastImage = images[images.length - 1];
 
-  const imageHeight = lastImage.getBoundingClientRect().height;
   const reelHeight = track.parentElement.getBoundingClientRect().height;
 
-  // Center the last image vertically in the reel
-  const moveAmount = track.offsetHeight - (reelHeight / 2 + imageHeight / 2);
+  // Distance from track top to last image top
+  const lastImageTop = lastImage.getBoundingClientRect().top - track.getBoundingClientRect().top;
+
+  // Move so last image is centered
+  const moveAmount = lastImageTop - (reelHeight / 2 - lastImage.getBoundingClientRect().height / 2);
 
   track.style.transform = `translateY(-${moveAmount}px)`;
 }
