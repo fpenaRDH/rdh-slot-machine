@@ -3,19 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slot Machine</title>
+    <title>Slot Machine Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #slotMachine { display: inline-block; }
+        #result { font-size: 2em; }
+        #spinButton { margin-top: 20px; padding: 10px 20px; font-size: 1.2em; }
+    </style>
 </head>
 <body>
+    <h1>Slot Machine Game</h1>
+    <div id="slotMachine">
+        <div id="result">🎰 🎰 🎰</div>
+    </div>
     <button id="spinButton">Spin</button>
     <script>
-        // Some JavaScript logic here
-        function spin() {
-            // Function logic
-            spinButton.disabled = false; // Previously true
-        }
-        // Other code
-        // At some point, we were clearing tips:
-        // Remove this line: tip.innerText = "";
+        const spinButton = document.getElementById('spinButton');
+        const result = document.getElementById('result');
+
+        spinButton.addEventListener('click', () => {
+            spinButton.disabled = true;
+            const outcomes = ['🍒', '🍋', '🍊', '🍉', '🍇', '🍀'];
+            const randomOutcome = () => outcomes[Math.floor(Math.random() * outcomes.length)];
+            const slotResults = [randomOutcome(), randomOutcome(), randomOutcome()];
+            result.innerText = slotResults.join(' ');
+            spinButton.disabled = false;
+        });
     </script>
 </body>
 </html>
