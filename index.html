@@ -25,45 +25,51 @@
     gap: 15px;
   }
 
-  .reel {
-    width: 120px;
-    height: 120px;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .reel img {
-    width: 90px;
-    height: 90px;
-    object-fit: contain;
-  }
-
-  .spin-button {
-    margin-top: 30px;
-    padding: 15px 30px;
-    font-size: 20px;
-    border-radius: 10px;
-    border: none;
-    background-color: #00b894;
-    color: white;
-  }
-
-  .message {
-    margin-top: 25px;
-    font-size: 20px;
-    min-height: 50px;
-  }
-
-    .spinning {
-  animation: spinAnim 0.15s linear infinite;
+ .reel {
+  width: 120px;
+  height: 120px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
 }
 
-@keyframes spinAnim {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-15px); }
+.reel-track {
+  position: absolute;
+  width: 100%;
+}
+
+.reel-track img {
+  width: 90px;
+  height: 90px;
+  display: block;
+  margin: 15px auto;
+  object-fit: contain;
+}
+
+.spin-button {
+  margin-top: 30px;
+  padding: 15px 30px;
+  font-size: 20px;
+  border-radius: 10px;
+  border: none;
+  background-color: #00b894;
+  color: white;
+ }
+
+.message {
+  margin-top: 25px;
+  font-size: 20px;
+  min-height: 50px;
+}
+
+.spinning {
+  animation: spinScroll 0.2s linear infinite;
+}
+
+@keyframes spinScroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-120px); }
 }
 
 .spin-button:disabled {
@@ -113,9 +119,23 @@ function weightedRandom() {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function setReel(id, symbol) {
-  document.getElementById(id).innerHTML =
-    `<img src="${symbol}.png">`;
+function setReel(id, finalSymbol) {
+
+  const reel = document.getElementById(id);
+
+  // Build a stack of random images for spin effect
+  let stack = "";
+  for (let i = 0; i < 10; i++) {
+    let random = weightedRandom();
+    stack += `<img src="${random}.png">`;
+  }
+
+  // Add the final symbol at the end
+  stack += `<img src="${finalSymbol}.png">`;
+
+  reel.innerHTML = `<div class="reel-track spinning">${stack}</div>`;
+
+  return reel.querySelector(".reel-track");
 }
 
 function spin() {
@@ -126,39 +146,29 @@ function spin() {
   spinSound.currentTime = 0;
   spinSound.play();
 
-  const reel1 = document.getElementById("reel1");
-  const reel2 = document.getElementById("reel2");
-  const reel3 = document.getElementById("reel3");
+  let r1 = weightedRandom();
+  let r2 = weightedRandom();
+  let r3 = weightedRandom();
 
-  reel1.classList.add("spinning");
-  reel2.classList.add("spinning");
-  reel3.classList.add("spinning");
+  const track1 = setReel("reel1", r1);
+  const track2 = setReel("reel2", r2);
+  const track3 = setReel("reel3", r3);
 
-  let r1, r2, r3;
-
-  // Reel 1 stops
+  // Stop Reel 1
   setTimeout(() => {
-    reel1.classList.remove("spinning");
-    r1 = weightedRandom();
-    setReel("reel1", r1);
+    track1.classList.remove("spinning");
   }, 1000);
 
-  // Reel 2 stops
+  // Stop Reel 2
   setTimeout(() => {
-    reel2.classList.remove("spinning");
-    r2 = weightedRandom();
-    setReel("reel2", r2);
+    track2.classList.remove("spinning");
   }, 2000);
 
-  // Reel 3 stops
+  // Stop Reel 3
   setTimeout(() => {
-    reel3.classList.remove("spinning");
-    r3 = weightedRandom();
-    setReel("reel3", r3);
-
+    track3.classList.remove("spinning");
     evaluate(r1, r2, r3);
     button.disabled = false;
-
   }, 3000);
 }
 
