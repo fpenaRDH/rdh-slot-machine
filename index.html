@@ -5,25 +5,25 @@
 <title>RDH SLOT MACHINE – Match the Defect!</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
- body {
-   margin: 0;
-   font-family: Arial, sans-serif;
-   background: linear-gradient(135deg, #1f2a38, #0f1720);
-   color: white;
-   text-align: center;
- }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1f2a38, #0f1720);
+  color: white;
+  text-align: center;
+}
 
- h1 {
-   margin-top: 20px;
-   font-size: 28px;
- }
+h1 {
+  margin-top: 20px;
+  font-size: 28px;
+}
 
- .machine {
-   display: flex;
-   justify-content: center;
-   margin-top: 30px;
-   gap: 15px;
- }
+.machine {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 15px;
+}
 
 .reel {
   width: 22vw;
@@ -58,7 +58,7 @@
   border: none;
   background-color: #00b894;
   color: white;
- }
+}
 
 .message {
   margin-top: 25px;
@@ -85,7 +85,7 @@
 <audio id="spinSound" src="spin.mp3"></audio>
 <audio id="winSound" src="win.mp3"></audio>
 <audio id="jackpotSound" src="jackpot.mp3"></audio>
-    
+
 <div class="message" id="message"></div>
 
 <script>
@@ -113,35 +113,36 @@ function weightedRandom() {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+// Create the reel stack and return the track
 function setReel(id, finalSymbol) {
   const reel = document.getElementById(id);
 
-  // Build a stack of random images for spin effect
   let stack = "";
   for (let i = 0; i < 10; i++) {
-    let random = weightedRandom();
-    stack += `<img src="${random}.png">`;
+    stack += `<img src="${weightedRandom()}.png">`;
   }
-
-  // Add the final symbol at the end
   stack += `<img src="${finalSymbol}.png">`;
 
   reel.innerHTML = `<div class="reel-track">${stack}</div>`;
+  const track = reel.querySelector(".reel-track");
 
-  return reel.querySelector(".reel-track");
+  // Force browser to render images so height measurements are accurate
+  track.offsetHeight;
+
+  return track;
 }
 
+// Stop a reel and center the last image
 function stopReel(track) {
   const images = track.querySelectorAll("img");
   const lastImage = images[images.length - 1];
 
-  const reelHeight = track.parentElement.getBoundingClientRect().height;
+  const reelHeight = track.parentElement.offsetHeight;
+  const imageHeight = lastImage.offsetHeight;
+  const imagesAbove = images.length - 1;
 
-  // Distance from track top to last image top
-  const lastImageTop = lastImage.getBoundingClientRect().top - track.getBoundingClientRect().top;
-
-  // Move so last image is centered
-  const moveAmount = lastImageTop - (reelHeight / 2 - lastImage.getBoundingClientRect().height / 2);
+  // Move track so the last image is centered
+  const moveAmount = imagesAbove * imageHeight - (reelHeight - imageHeight) / 2;
 
   track.style.transform = `translateY(-${moveAmount}px)`;
 }
@@ -154,39 +155,36 @@ function spin() {
   spinSound.play();
 
   // Determine random final symbols
-  let r1 = weightedRandom();
-  let r2 = weightedRandom();
-  let r3 = weightedRandom();
+  const r1 = weightedRandom();
+  const r2 = weightedRandom();
+  const r3 = weightedRandom();
 
   const track1 = setReel("reel1", r1);
   const track2 = setReel("reel2", r2);
   const track3 = setReel("reel3", r3);
 
-  // Stop reels one by one with delay
-  setTimeout(() => stopReel(track1), 500);  // first reel
-  setTimeout(() => stopReel(track2), 1200); // second reel
-  setTimeout(() => stopReel(track3), 1900); // third reel
+  // Spin animation (stop reels sequentially)
+  setTimeout(() => stopReel(track1), 200);  // first reel
+  setTimeout(() => stopReel(track2), 800);  // second reel
+  setTimeout(() => stopReel(track3), 1400); // third reel
 
   // Evaluate after all reels stopped
   setTimeout(() => {
     evaluate(r1, r2, r3);
     button.disabled = false;
-  }, 2500);
+  }, 2000);
 }
 
+// Evaluate spin result
 function evaluate(r1, r2, r3) {
   const message = document.getElementById("message");
 
   if (r1 === r2 && r2 === r3) {
-
     jackpotSound.currentTime = 0;
     jackpotSound.play();
-
-    if (r1 === "healthy") {
-      message.innerText = "💎 HEALTHY BUILDING JACKPOT!";
-    } else {
-      message.innerText = "🏆 Triple Defect! Grand Prize Entry!";
-    }
+    message.innerText = r1 === "healthy"
+      ? "💎 HEALTHY BUILDING JACKPOT!"
+      : "🏆 Triple Defect! Grand Prize Entry!";
     return;
   }
 
