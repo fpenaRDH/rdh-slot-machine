@@ -146,27 +146,22 @@ function spin() {
 
 function evaluate([r1, r2, r3]) {
   const message = document.getElementById("message");
+  const uniqueSymbols = new Set([r1, r2, r3]);
 
-  // Jackpot: all three match
-  if (r1 === r2 && r2 === r3) {
+  if (uniqueSymbols.size === 1) {
+    // All three match → Jackpot
     jackpotSound.currentTime = 0; 
     jackpotSound.play();
     message.innerText = "💎 JACKPOT! All three match!";
-    return;
-  }
-
-  // Two-match: exactly two symbols match (any two reels, including reel 3)
-  if ((r1 === r2 && r1 !== r3) ||
-      (r1 === r3 && r1 !== r2) ||
-      (r2 === r3 && r2 !== r1)) {
+  } else if (uniqueSymbols.size === 2) {
+    // Exactly two match → Match 2
     winSound.currentTime = 0; 
     winSound.play();
     message.innerText = "🎉 Match 2! You win!";
-    return;
+  } else {
+    // All different → No match
+    message.innerText = "❌ No match — try again!";
   }
-
-  // No match
-  message.innerText = "❌ No match — try again!";
 }
 </script>
 
