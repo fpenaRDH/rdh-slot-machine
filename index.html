@@ -1,122 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDH Slot Machine</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-            margin-top: 20px;
-        }
-        .reel img {
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDH Slot Machine</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+/* Reel container */
+.reel {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+    margin: 10px;
+    border: 3px solid black;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
+
+/* Reel images */
+.reel img {
     width: 100%;
-    transition: transform 0.2s ease;
+    height: 100%;
+    object-fit: cover;
 }
 
+/* Spinning animation */
 .spinning {
-    animation: spinReel 0.2s linear infinite;
+    animation: spinAnim 0.15s linear infinite;
 }
 
-@keyframes spinReel {
+@keyframes spinAnim {
     0% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0); }
+    100% { transform: translateY(-20px); }
 }
-        #spinButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-    </style>
+
+#spinButton {
+    padding: 12px 25px;
+    font-size: 18px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+</style>
 </head>
+
 <body>
-    <h1>RDH Slot Machine</h1>
-    <div class="reel" id="reel1"><img src="images/water.png" alt="Water"></div>
-    <div class="reel" id="reel2"><img src="images/cracks.png" alt="Cracks"></div>
-    <div class="reel" id="reel3"><img src="images/roof.png" alt="Roof"></div>
-    <button id="spinButton">SPIN</button>
-    <audio id="spinSound" src="sounds/spin.mp3"></audio>
-    <audio id="winSound" src="sounds/win.mp3"></audio>
-    <audio id="jackpotSound" src="sounds/jackpot.mp3"></audio>
-    <script>
-    const spinButton = document.getElementById('spinButton');
 
-    const reel1 = document.querySelector('#reel1 img');
-    const reel2 = document.querySelector('#reel2 img');
-    const reel3 = document.querySelector('#reel3 img');
+<h1>RDH Slot Machine</h1>
 
-    const spinSound = document.getElementById('spinSound');
-    const winSound = document.getElementById('winSound');
-    const jackpotSound = document.getElementById('jackpotSound');
+<div class="reel" id="reel1"><img src="images/water.png"></div>
+<div class="reel" id="reel2"><img src="images/cracks.png"></div>
+<div class="reel" id="reel3"><img src="images/roof.png"></div>
 
-    const images = [
-        "images/water.png",
-        "images/cracks.png",
-        "images/roof.png"
-    ];
+<br>
+<button id="spinButton">SPIN</button>
 
-    spinButton.addEventListener('click', spin);
+<audio id="spinSound" src="sounds/spin.mp3"></audio>
+<audio id="winSound" src="sounds/win.mp3"></audio>
+<audio id="jackpotSound" src="sounds/jackpot.mp3"></audio>
 
-    function getRandomImage() {
-        return images[Math.floor(Math.random() * images.length)];
+<script>
+const spinButton = document.getElementById("spinButton");
+
+const reel1 = document.querySelector("#reel1 img");
+const reel2 = document.querySelector("#reel2 img");
+const reel3 = document.querySelector("#reel3 img");
+
+const spinSound = document.getElementById("spinSound");
+const winSound = document.getElementById("winSound");
+const jackpotSound = document.getElementById("jackpotSound");
+
+const images = [
+    "images/water.png",
+    "images/cracks.png",
+    "images/roof.png"
+];
+
+spinButton.addEventListener("click", spin);
+
+function randomImage() {
+    return images[Math.floor(Math.random() * images.length)];
+}
+
+function spin() {
+
+    spinButton.disabled = true;
+
+    // Reset sounds
+    spinSound.currentTime = 0;
+    winSound.pause();
+    jackpotSound.pause();
+
+    spinSound.play();
+
+    // Start spinning animation
+    reel1.classList.add("spinning");
+    reel2.classList.add("spinning");
+    reel3.classList.add("spinning");
+
+    let img1, img2, img3;
+
+    // Reel 1 stops at 1s
+    setTimeout(() => {
+        reel1.classList.remove("spinning");
+        img1 = randomImage();
+        reel1.src = img1;
+    }, 1000);
+
+    // Reel 2 stops at 2s
+    setTimeout(() => {
+        reel2.classList.remove("spinning");
+        img2 = randomImage();
+        reel2.src = img2;
+    }, 2000);
+
+    // Reel 3 stops at 3s
+    setTimeout(() => {
+        reel3.classList.remove("spinning");
+        img3 = randomImage();
+        reel3.src = img3;
+
+        spinButton.disabled = false;
+
+        checkWin(img1, img2, img3);
+
+    }, 3000);
+}
+
+function checkWin(a, b, c) {
+
+    // 3 matches = JACKPOT
+    if (a === b && b === c) {
+        jackpotSound.currentTime = 0;
+        jackpotSound.play();
     }
 
-    function spin() {
-        spinButton.disabled = true;
-        spinSound.currentTime = 0;
-        spinSound.play();
-
-        // Add spinning animation
-        reel1.classList.add("spinning");
-        reel2.classList.add("spinning");
-        reel3.classList.add("spinning");
-
-        let img1, img2, img3;
-
-        // Reel 1 stops at 1 second
-        setTimeout(() => {
-            reel1.classList.remove("spinning");
-            img1 = getRandomImage();
-            reel1.src = img1;
-        }, 1000);
-
-        // Reel 2 stops at 2 seconds
-        setTimeout(() => {
-            reel2.classList.remove("spinning");
-            img2 = getRandomImage();
-            reel2.src = img2;
-        }, 2000);
-
-        // Reel 3 stops at 3 seconds
-        setTimeout(() => {
-            reel3.classList.remove("spinning");
-            img3 = getRandomImage();
-            reel3.src = img3;
-
-            spinButton.disabled = false;
-
-            checkWin(img1, img2, img3);
-        }, 3000);
+    // 2 matches = WIN
+    else if (a === b || a === c || b === c) {
+        winSound.currentTime = 0;
+        winSound.play();
     }
-
-    function checkWin(a, b, c) {
-        // 3 match = JACKPOT
-        if (a === b && b === c) {
-            jackpotSound.currentTime = 0;
-            jackpotSound.play();
-        }
-        // 2 match = WIN
-        else if (a === b || a === c || b === c) {
-            winSound.currentTime = 0;
-            winSound.play();
-        }
-    }
+}
 </script>
+
 </body>
 </html>
