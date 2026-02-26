@@ -1,194 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>RDH SLOT MACHINE – Match the Defect!</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #1f2a38, #0f1720);
-    color: white;
-    text-align: center;
-  }
-
-  h1 {
-    margin-top: 20px;
-    font-size: 28px;
-  }
-
-  .machine {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-    gap: 15px;
-  }
-
-  .reel {
-    width: 120px;
-    height: 120px;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .reel img {
-    width: 90px;
-    height: 90px;
-    object-fit: contain;
-  }
-
-    /* Spinning animation */
-  @keyframes spin {
-    0% {
-      transform: rotateY(0deg);
-    }
-    100% {
-      transform: rotateY(360deg);
-    }
-  }
-
-  .spinning {
-    animation: spin 0.1s linear infinite;
-  }
-
-  .spin-button {
-    margin-top: 30px;
-    padding: 15px 30px;
-    font-size: 20px;
-    border-radius: 10px;
-    border: none;
-    background-color: #00b894;
-    color: white;
-    cursor: pointer;
-  }
-
-  .spin-button:disabled {
-    background-color: #888;
-    cursor: not-allowed;
-  }
- 
-  .message {
-    margin-top: 25px;
-    font-size: 20px;
-    min-height: 50px;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine</title>
 </head>
 <body>
-
-<h1>🎰 RDH SLOT MACHINE</h1>
-
-<div class="machine">
-  <div class="reel" id="reel1"></div>
-  <div class="reel" id="reel2"></div>
-  <div class="reel" id="reel3"></div>
-</div>
-
-<button class="spin-button" onclick="spin()">SPIN</button>
-
-<div class="message" id="message"></div>
-
-  <!-- Hidden audio elements for sounds -->
-<audio id="spinSound" src="spin.mp3"></audio>
-<audio id="winSound" src="win.mp3"></audio>
-<audio id="jackpotSound" src="jackpot.mp3"></audio>
-  
-<script>
-const symbols = [
-  { name: "water", weight: 5 },
-  { name: "cracks", weight: 5 },
-  { name: "roof", weight: 5 },
-  { name: "air", weight: 5 },
-  { name: "structural", weight: 5 },
-  { name: "healthy", weight: 1 }
-];
-
-function weightedRandom() {
-  let pool = [];
-  symbols.forEach(s => {
-    for (let i = 0; i < s.weight; i++) {
-      pool.push(s.name);
-    }
-  });
-  return pool[Math.floor(Math.random() * pool.length)];
-}
-
-  function playSound(soundId) {
-  const audio = document.getElementById(soundId);
-  audio.currentTime = 0;
-  audio.play();
-}
-function spin() {
-  const spinButton = document.getElementById("spinButton");
-  
-  // Disable button while spinning
-  spinButton.disabled = true;
-  
-  let r1 = weightedRandom();
-  let r2 = weightedRandom();
-  let r3 = weightedRandom();
-
-  playSound("spinSound");
-
- // Start spinning animation
-  document.getElementById("reel1").classList.add("spinning");
-  document.getElementById("reel2").classList.add("spinning");
-  document.getElementById("reel3").classList.add("spinning");
-
-  // After 3 seconds, stop spinning and show results
-  setTimeout(() => {
-    // Stop spinning
-    document.getElementById("reel1").classList.remove("spinning");
-    document.getElementById("reel2").classList.remove("spinning");
-    document.getElementById("reel3").classList.remove("spinning");
-
-    // Show the final images 
-  setReel("reel1", r1);
-  setReel("reel2", r2);
-  setReel("reel3", r3);
-
-   // Evaluate results
-    evaluate(r1, r2, r3);
-
-    // Re-enable button
-    spinButton.disabled = true;
-  }, 3000); // 3000 milliseconds = 3 seconds
-}
-
-function setReel(id, symbol) {
-  document.getElementById(id).innerHTML =
-    `<img src="${symbol}.png">`;
-}
-
-function evaluate(r1, r2, r3) {
-  const message = document.getElementById("message");
-
-  if (r1 === r2 && r2 === r3) {
-    if (r1 === "healthy") {
-      message.innerText = "💎 HEALTHY BUILDING JACKPOT!";
-      playSound("jackpotSound");
-      return;
-    } else {
-      message.innerText = "🏆 Triple Defect! Grand Prize Entry!";
-      playSound("jackpotSound");
-      return;
-    }
-  }
-
-  if (r1 === r2 || r2 === r3 || r1 === r3) {
-    message.innerText = "🎉 Match 2! Claim your RDH swag!";
-    playSound("winSound");
-    return;
-  }
-
-  message.innerText = "No match — try again!";
-  tip.innerText = "";
-}
-</script>
-
+    <button id="spinButton">Spin</button>
+    <script>
+        // Some JavaScript logic here
+        function spin() {
+            // Function logic
+            spinButton.disabled = false; // Previously true
+        }
+        // Other code
+        // At some point, we were clearing tips:
+        // Remove this line: tip.innerText = "";
+    </script>
 </body>
 </html>
