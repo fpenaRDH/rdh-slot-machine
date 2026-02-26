@@ -119,7 +119,7 @@ function evaluate([r1, r2, r3]) {
   // 2️⃣ Any two match - all possible pairs
   if ((r1 === r2 && r1 !== r3) ||  // Reel 1 & 2
       (r1 === r3 && r1 !== r2) ||  // Reel 1 & 3
-      (r2 === r3 && r2 !== r1)) {  // Reel 2 & 3
+      (r2 === r3 && r2 !== r1))||  // Reel 2 & 3{
     winSound.currentTime = 0;
     winSound.play();
     message.innerText = "🎉 Match 2! You win!";
