@@ -5,32 +5,15 @@
 <title>RDH SLOT MACHINE – Match the Defect!</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1f2a38, #0f1720);
-  color: white;
-  text-align: center;
-}
-h1 { margin-top: 20px; font-size: 28px; }
-.machine { display: flex; justify-content: center; margin-top: 30px; gap: 15px; }
-.reel {
-  width: 22vw; height: 22vw; max-width: 160px; max-height: 160px;
-  background: white; border-radius: 12px; overflow: hidden; position: relative;
-}
-.reel-track {
-  position: absolute; width: 100%;
-  transition: transform 1s cubic-bezier(.17,.67,.83,.67);
-}
-.reel-track img {
-  width: 70%; height: 70%; display: block; margin: 15% auto; object-fit: contain;
-}
-.spin-button {
-  margin-top: 30px; padding: 15px 30px; font-size: 20px; border-radius: 10px;
-  border: none; background-color: #00b894; color: white;
-}
-.message { margin-top: 25px; font-size: 20px; min-height: 50px; }
-.spin-button:disabled { opacity: 0.6; }
+body { margin:0; font-family:Arial,sans-serif; background:linear-gradient(135deg,#1f2a38,#0f1720); color:white; text-align:center; }
+h1{margin-top:20px;font-size:28px;}
+.machine{display:flex; justify-content:center; margin-top:30px; gap:15px;}
+.reel{width:22vw;height:22vw;max-width:160px;max-height:160px;background:white;border-radius:12px;overflow:hidden;position:relative;}
+.reel-track{position:absolute;width:100%;transition:transform 1s cubic-bezier(.17,.67,.83,.67);}
+.reel-track img{width:70%; height:70%; display:block; margin:15% auto; object-fit:contain;}
+.spin-button{margin-top:30px;padding:15px 30px; font-size:20px; border-radius:10px; border:none; background-color:#00b894;color:white;}
+.message{margin-top:25px;font-size:20px;min-height:50px;}
+.spin-button:disabled{opacity:0.6;}
 </style>
 </head>
 <body>
@@ -98,7 +81,6 @@ function spin() {
   spinSound.currentTime = 0; spinSound.play();
 
   const finalSymbols = [weightedRandom(), weightedRandom(), weightedRandom()];
-
   const track1 = setReel("reel1", finalSymbols[0]);
   const track2 = setReel("reel2", finalSymbols[1]);
   const track3 = setReel("reel3", finalSymbols[2]);
@@ -107,38 +89,34 @@ function spin() {
   setTimeout(()=>stopReel(track2), 800);
   setTimeout(()=>stopReel(track3), 1400);
 
-  setTimeout(()=> {
+  setTimeout(()=>{
     evaluate(finalSymbols);
     button.disabled = false;
-  }, 2000);
+  },2000);
 }
 
-// Corrected evaluate to check any two reels
-function evaluate([r1, r2, r3]) {
+function evaluate([r1,r2,r3]) {
   const message = document.getElementById("message");
 
   // Jackpot: all three match
-  if (r1 === r2 && r2 === r3) {
-    jackpotSound.currentTime = 0; jackpotSound.play();
-    message.innerText = r1 === "healthy" 
-      ? "💎 HEALTHY BUILDING JACKPOT!" 
+  if (r1===r2 && r2===r3) {
+    jackpotSound.currentTime=0; jackpotSound.play();
+    message.innerText = r1==="healthy"
+      ? "💎 HEALTHY BUILDING JACKPOT!"
       : "🏆 Triple Defect! Grand Prize Entry!";
     return;
   }
 
-  // Two-match: any pair matches
-  if (
-    r1 === r2 || r1 === r3 || // reel 1 matches 2 or 3
-    r2 === r1 || r2 === r3 || // reel 2 matches 1 or 3 (redundant but explicit)
-    r3 === r1 || r3 === r2    // reel 3 matches 1 or 2
-  ) {
-    winSound.currentTime = 0; winSound.play();
-    message.innerText = "🎉 Match 2! Claim your RDH swag!";
+  // Two-match: check if any pair matches
+  const unique = new Set([r1,r2,r3]);
+  if (unique.size === 2) { // two items match, one different
+    winSound.currentTime=0; winSound.play();
+    message.innerText="🎉 Match 2! Claim your RDH swag!";
     return;
   }
 
   // No match
-  message.innerText = "No match — try again!";
+  message.innerText="No match — try again!";
 }
 </script>
 
