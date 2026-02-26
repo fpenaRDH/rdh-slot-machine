@@ -3,32 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slot Machine Game</title>
+    <title>RDH Slot Machine</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #slotMachine { display: inline-block; }
-        #result { font-size: 2em; }
-        #spinButton { margin-top: 20px; padding: 10px 20px; font-size: 1.2em; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+        .reel {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        img {
+            width: 100%;
+        }
+        #spinButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Slot Machine Game</h1>
-    <div id="slotMachine">
-        <div id="result">🎰 🎰 🎰</div>
-    </div>
-    <button id="spinButton">Spin</button>
+    <h1>RDH Slot Machine</h1>
+    <div class="reel" id="reel1"><img src="images/water.png" alt="Water"></div>
+    <div class="reel" id="reel2"><img src="images/cracks.png" alt="Cracks"></div>
+    <div class="reel" id="reel3"><img src="images/roof.png" alt="Roof"></div>
+    <button id="spinButton">SPIN</button>
+    <audio id="spinSound" src="sounds/spin.mp3"></audio>
+    <audio id="winSound" src="sounds/win.mp3"></audio>
     <script>
         const spinButton = document.getElementById('spinButton');
-        const result = document.getElementById('result');
+        spinButton.addEventListener('click', spin);
 
-        spinButton.addEventListener('click', () => {
+        function spin() {
+            // Play spin sound
+            const spinSound = document.getElementById('spinSound');
+            spinSound.play();
+
+            // Disable the spin button
             spinButton.disabled = true;
-            const outcomes = ['🍒', '🍋', '🍊', '🍉', '🍇', '🍀'];
-            const randomOutcome = () => outcomes[Math.floor(Math.random() * outcomes.length)];
-            const slotResults = [randomOutcome(), randomOutcome(), randomOutcome()];
-            result.innerText = slotResults.join(' ');
-            spinButton.disabled = false;
-        });
+
+            // Simulate spinning
+            setTimeout(() => {
+                // Enable button after spinning
+                spinButton.disabled = false;
+                // Play winning sound
+                const winSound = document.getElementById('winSound');
+                winSound.play();
+            }, 3000);
+        }
     </script>
 </body>
 </html>
