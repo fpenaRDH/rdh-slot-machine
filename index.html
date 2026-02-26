@@ -14,19 +14,20 @@
             color: #333;
             margin-top: 20px;
         }
-        .reel {
-            display: inline-block;
-            width: 100px;
-            height: 100px;
-            margin: 10px;
-            background-color: #fff;
-            border: 2px solid #000;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        img {
-            width: 100%;
-        }
+        .reel img {
+    width: 100%;
+    transition: transform 0.2s ease;
+}
+
+.spinning {
+    animation: spinReel 0.2s linear infinite;
+}
+
+@keyframes spinReel {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
         #spinButton {
             padding: 10px 20px;
             font-size: 16px;
@@ -42,27 +43,80 @@
     <button id="spinButton">SPIN</button>
     <audio id="spinSound" src="sounds/spin.mp3"></audio>
     <audio id="winSound" src="sounds/win.mp3"></audio>
+    <audio id="jackpotSound" src="sounds/jackpot.mp3"></audio>
     <script>
-        const spinButton = document.getElementById('spinButton');
-        spinButton.addEventListener('click', spin);
+    const spinButton = document.getElementById('spinButton');
 
-        function spin() {
-            // Play spin sound
-            const spinSound = document.getElementById('spinSound');
-            spinSound.play();
+    const reel1 = document.querySelector('#reel1 img');
+    const reel2 = document.querySelector('#reel2 img');
+    const reel3 = document.querySelector('#reel3 img');
 
-            // Disable the spin button
-            spinButton.disabled = true;
+    const spinSound = document.getElementById('spinSound');
+    const winSound = document.getElementById('winSound');
+    const jackpotSound = document.getElementById('jackpotSound');
 
-            // Simulate spinning
-            setTimeout(() => {
-                // Enable button after spinning
-                spinButton.disabled = false;
-                // Play winning sound
-                const winSound = document.getElementById('winSound');
-                winSound.play();
-            }, 3000);
+    const images = [
+        "images/water.png",
+        "images/cracks.png",
+        "images/roof.png"
+    ];
+
+    spinButton.addEventListener('click', spin);
+
+    function getRandomImage() {
+        return images[Math.floor(Math.random() * images.length)];
+    }
+
+    function spin() {
+        spinButton.disabled = true;
+        spinSound.currentTime = 0;
+        spinSound.play();
+
+        // Add spinning animation
+        reel1.classList.add("spinning");
+        reel2.classList.add("spinning");
+        reel3.classList.add("spinning");
+
+        let img1, img2, img3;
+
+        // Reel 1 stops at 1 second
+        setTimeout(() => {
+            reel1.classList.remove("spinning");
+            img1 = getRandomImage();
+            reel1.src = img1;
+        }, 1000);
+
+        // Reel 2 stops at 2 seconds
+        setTimeout(() => {
+            reel2.classList.remove("spinning");
+            img2 = getRandomImage();
+            reel2.src = img2;
+        }, 2000);
+
+        // Reel 3 stops at 3 seconds
+        setTimeout(() => {
+            reel3.classList.remove("spinning");
+            img3 = getRandomImage();
+            reel3.src = img3;
+
+            spinButton.disabled = false;
+
+            checkWin(img1, img2, img3);
+        }, 3000);
+    }
+
+    function checkWin(a, b, c) {
+        // 3 match = JACKPOT
+        if (a === b && b === c) {
+            jackpotSound.currentTime = 0;
+            jackpotSound.play();
         }
-    </script>
+        // 2 match = WIN
+        else if (a === b || a === c || b === c) {
+            winSound.currentTime = 0;
+            winSound.play();
+        }
+    }
+</script>
 </body>
 </html>
